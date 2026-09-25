@@ -6,7 +6,7 @@ Given the reasoning agent’s question and expected states, Jev classifies selec
 
 For long output, Semcull checks the tail first, then earlier windows as requested. The reasoning agent stays in control and decides what to investigate next.
 
-This investigative workflow nature makes it extremely suited for debugging, troubleshooting and classification use cases. [See examples below](#6-examples).
+This progressive workflow nature makes it extremely suited for debugging, troubleshooting and classification use cases. [See examples below](#6-examples).
 
 ## Contents
 
