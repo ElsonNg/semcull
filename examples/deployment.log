@@ -1,0 +1,341 @@
+2026-09-25T12:00:00.000Z INFO  service=deploy-controller env=staging event=fixture_notice synthetic=true message="Invented microservice rollout; no real users, tokens, passwords, or payment data."
+2026-09-25T12:00:00.500Z INFO  service=deploy-controller env=staging event=rollout_started deployment=deploy-demo-042 service_target=checkout namespace=commerce from_revision=checkout-r41 to_revision=checkout-r42 strategy=canary
+2026-09-25T12:00:01.000Z INFO  service=deploy-controller env=staging event=preflight_passed ready_replicas=3 desired_replicas=3 old_revision=checkout-r41 error_rate=0.000
+2026-09-25T12:00:01.500Z INFO  service=image-registry env=staging event=image_verified image=registry.example.test/commerce/checkout:2.8.0 signature=valid scan=passed
+2026-09-25T12:00:02.000Z INFO  service=deploy-controller env=staging event=config_diff database_role_previous=checkout_app_v41 database_role_candidate=checkout_app_v42 secret_version=demo-v18 schema_version=20260925_01
+2026-09-25T12:00:02.500Z INFO  service=schema-job env=staging event=db_tls_connected host=postgres-primary.commerce.svc.cluster.local port=5432 tls=TLSv1.3 verify_full=true user=schema_owner
+2026-09-25T12:00:03.000Z INFO  service=schema-job env=staging event=migration_checked schema_version=20260925_01 pending=0 status=compatible
+2026-09-25T12:00:03.500Z INFO  service=checkout env=staging event=readiness_probe pod=checkout-r41-0 revision=checkout-r41 status=200 db_pool_active=2 db_pool_idle=8 redis=ready
+2026-09-25T12:00:04.000Z INFO  service=inventory env=staging event=consumer_checkpoint partition=0 offset=180240 lag=0
+2026-09-25T12:00:04.500Z INFO  service=checkout env=staging event=readiness_probe pod=checkout-r41-1 revision=checkout-r41 status=200 db_pool_active=2 db_pool_idle=8 redis=ready
+2026-09-25T12:00:05.000Z INFO  service=inventory env=staging event=consumer_checkpoint partition=1 offset=180320 lag=0
+2026-09-25T12:00:05.500Z INFO  service=checkout env=staging event=readiness_probe pod=checkout-r41-2 revision=checkout-r41 status=200 db_pool_active=2 db_pool_idle=8 redis=ready
+2026-09-25T12:00:06.000Z INFO  service=inventory env=staging event=consumer_checkpoint partition=2 offset=180400 lag=0
+2026-09-25T12:00:06.500Z INFO  service=deploy-controller env=staging event=pod_scheduled pod=checkout-r42-canary node=worker-demo-03 image=checkout:2.8.0
+2026-09-25T12:00:07.000Z INFO  service=checkout env=staging event=process_started pod=checkout-r42-canary revision=checkout-r42 runtime=python3.11 workers=4
+2026-09-25T12:00:07.500Z INFO  service=checkout env=staging event=config_loaded pod=checkout-r42-canary source=mounted-secret secret_version=demo-v18 values_logged=false
+2026-09-25T12:00:08.000Z INFO  service=identity env=staging event=discovery_request client=checkout issuer=https://identity.example.test/.well-known/openid-configuration status=200 duration_ms=21
+2026-09-25T12:00:08.500Z INFO  service=checkout env=staging event=oidc_discovery_loaded pod=checkout-r42-canary audience=commerce-api token_endpoint=https://identity.example.test/oauth/token
+2026-09-25T12:00:09.000Z INFO  service=checkout env=staging event=jwks_loaded pod=checkout-r42-canary signing_keys=2 cache_ttl_seconds=3600 status=200
+2026-09-25T12:00:09.500Z INFO  service=checkout env=staging event=workload_identity_ready pod=checkout-r42-canary service_account=checkout mTLS=true certificate_valid=true
+2026-09-25T12:00:10.000Z INFO  service=identity env=staging event=client_credentials_granted client=checkout subject=service:checkout scopes=inventory:read,payments:health expires_in_seconds=300 token_logged=false
+2026-09-25T12:00:10.500Z INFO  service=checkout env=staging event=downstream_auth_ready pod=checkout-r42-canary audience=payments-api token_source=workload_identity
+2026-09-25T12:00:11.000Z INFO  service=checkout env=staging event=db_dns_resolved pod=checkout-r42-canary host=postgres-primary.commerce.svc.cluster.local addresses=1
+2026-09-25T12:00:11.500Z INFO  service=checkout env=staging event=db_tls_connected pod=checkout-r42-canary tls=TLSv1.3 verify_full=true duration_ms=18
+2026-09-25T12:00:12.000Z INFO  service=postgres env=staging event=connection_authorized application_name=checkout-r42-canary user=checkout_app_v42 database=commerce tls=true
+2026-09-25T12:00:12.500Z INFO  service=checkout env=staging event=db_pool_ready pod=checkout-r42-canary user=checkout_app_v42 min_size=2 max_size=10 connect_timeout_seconds=5
+2026-09-25T12:00:13.000Z INFO  service=checkout env=staging event=db_probe_passed pod=checkout-r42-canary query="SELECT 1" duration_ms=2 scope=connectivity_only
+2026-09-25T12:00:13.500Z INFO  service=redis env=staging event=connection_authenticated client=checkout-r42-canary user=checkout_cache tls=true database=0
+2026-09-25T12:00:14.000Z INFO  service=checkout env=staging event=cache_ready pod=checkout-r42-canary ping=PONG pool_size=8
+2026-09-25T12:00:14.500Z INFO  service=payments env=staging event=health_request caller=checkout-r42-canary mTLS=verified auth=accepted status=200 duration_ms=12
+2026-09-25T12:00:15.000Z INFO  service=checkout env=staging event=http_listener_ready pod=checkout-r42-canary address=0.0.0.0:8080
+2026-09-25T12:00:15.500Z INFO  service=checkout env=staging event=readiness_probe pod=checkout-r42-canary status=200 checks=process,db_select_1,redis_ping
+2026-09-25T12:00:16.000Z INFO  service=gateway env=staging event=canary_route_updated route=/v1/checkout old_revision=checkout-r41 old_weight=99 candidate_revision=checkout-r42 candidate_weight=1
+2026-09-25T12:00:16.500Z INFO  service=smoke-runner env=staging event=negative_auth_test_started path=/v1/checkout token=omitted expected_status=401
+2026-09-25T12:00:17.000Z WARN  service=gateway env=staging event=request_rejected request_id=req-demo-no-auth path=/v1/checkout status=401 reason=missing_bearer_token test=negative_auth
+2026-09-25T12:00:17.500Z INFO  service=smoke-runner env=staging event=negative_auth_test_passed actual_status=401 expected_status=401
+2026-09-25T12:00:18.000Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-000 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:00:18.500Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-000 issuer=identity.example.test audience=commerce-api subject=customer-demo-0 scope=checkout:write
+2026-09-25T12:00:19.000Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-000 pod=checkout-r41-0 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:00:19.500Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-000 sku=demo-widget-0 requested=1 available=28 status=200
+2026-09-25T12:00:20.000Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-000 revision=checkout-r41 order_id=order-demo-0 transaction=committed duration_ms=9
+2026-09-25T12:00:20.500Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-000 revision=checkout-r41 status=201 duration_ms=51
+2026-09-25T12:00:21.000Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-001 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:00:21.500Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-001 issuer=identity.example.test audience=commerce-api subject=customer-demo-1 scope=checkout:write
+2026-09-25T12:00:22.000Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-001 pod=checkout-r41-1 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:00:22.500Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-001 sku=demo-widget-1 requested=1 available=28 status=200
+2026-09-25T12:00:23.000Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-001 revision=checkout-r41 order_id=order-demo-1 transaction=committed duration_ms=9
+2026-09-25T12:00:23.500Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-001 revision=checkout-r41 status=201 duration_ms=52
+2026-09-25T12:00:24.000Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-002 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:00:24.500Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-002 issuer=identity.example.test audience=commerce-api subject=customer-demo-2 scope=checkout:write
+2026-09-25T12:00:25.000Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-002 pod=checkout-r41-2 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:00:25.500Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-002 sku=demo-widget-2 requested=1 available=28 status=200
+2026-09-25T12:00:26.000Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-002 revision=checkout-r41 order_id=order-demo-2 transaction=committed duration_ms=9
+2026-09-25T12:00:26.500Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-002 revision=checkout-r41 status=201 duration_ms=53
+2026-09-25T12:00:27.000Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-003 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:00:27.500Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-003 issuer=identity.example.test audience=commerce-api subject=customer-demo-3 scope=checkout:write
+2026-09-25T12:00:28.000Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-003 pod=checkout-r41-0 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:00:28.500Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-003 sku=demo-widget-3 requested=1 available=28 status=200
+2026-09-25T12:00:29.000Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-003 revision=checkout-r41 order_id=order-demo-3 transaction=committed duration_ms=9
+2026-09-25T12:00:29.500Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-003 revision=checkout-r41 status=201 duration_ms=54
+2026-09-25T12:00:30.000Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-004 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:00:30.500Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-004 issuer=identity.example.test audience=commerce-api subject=customer-demo-4 scope=checkout:write
+2026-09-25T12:00:31.000Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-004 pod=checkout-r41-1 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:00:31.500Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-004 sku=demo-widget-0 requested=1 available=28 status=200
+2026-09-25T12:00:32.000Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-004 revision=checkout-r41 order_id=order-demo-4 transaction=committed duration_ms=9
+2026-09-25T12:00:32.500Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-004 revision=checkout-r41 status=201 duration_ms=55
+2026-09-25T12:00:33.000Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-005 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:00:33.500Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-005 issuer=identity.example.test audience=commerce-api subject=customer-demo-5 scope=checkout:write
+2026-09-25T12:00:34.000Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-005 pod=checkout-r41-2 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:00:34.500Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-005 sku=demo-widget-1 requested=1 available=28 status=200
+2026-09-25T12:00:35.000Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-005 revision=checkout-r41 order_id=order-demo-5 transaction=committed duration_ms=9
+2026-09-25T12:00:35.500Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-005 revision=checkout-r41 status=201 duration_ms=56
+2026-09-25T12:00:36.000Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-006 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:00:36.500Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-006 issuer=identity.example.test audience=commerce-api subject=customer-demo-6 scope=checkout:write
+2026-09-25T12:00:37.000Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-006 pod=checkout-r41-0 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:00:37.500Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-006 sku=demo-widget-2 requested=1 available=28 status=200
+2026-09-25T12:00:38.000Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-006 revision=checkout-r41 order_id=order-demo-6 transaction=committed duration_ms=9
+2026-09-25T12:00:38.500Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-006 revision=checkout-r41 status=201 duration_ms=57
+2026-09-25T12:00:39.000Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-007 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:00:39.500Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-007 issuer=identity.example.test audience=commerce-api subject=customer-demo-0 scope=checkout:write
+2026-09-25T12:00:40.000Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-007 pod=checkout-r41-1 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:00:40.500Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-007 sku=demo-widget-3 requested=1 available=28 status=200
+2026-09-25T12:00:41.000Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-007 revision=checkout-r41 order_id=order-demo-7 transaction=committed duration_ms=9
+2026-09-25T12:00:41.500Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-007 revision=checkout-r41 status=201 duration_ms=58
+2026-09-25T12:00:42.000Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-008 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:00:42.500Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-008 issuer=identity.example.test audience=commerce-api subject=customer-demo-1 scope=checkout:write
+2026-09-25T12:00:43.000Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-008 pod=checkout-r41-2 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:00:43.500Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-008 sku=demo-widget-0 requested=1 available=28 status=200
+2026-09-25T12:00:44.000Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-008 revision=checkout-r41 order_id=order-demo-8 transaction=committed duration_ms=9
+2026-09-25T12:00:44.500Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-008 revision=checkout-r41 status=201 duration_ms=59
+2026-09-25T12:00:45.000Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-009 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:00:45.500Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-009 issuer=identity.example.test audience=commerce-api subject=customer-demo-2 scope=checkout:write
+2026-09-25T12:00:46.000Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-009 pod=checkout-r41-0 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:00:46.500Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-009 sku=demo-widget-1 requested=1 available=28 status=200
+2026-09-25T12:00:47.000Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-009 revision=checkout-r41 order_id=order-demo-9 transaction=committed duration_ms=9
+2026-09-25T12:00:47.500Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-009 revision=checkout-r41 status=201 duration_ms=60
+2026-09-25T12:00:48.000Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-010 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:00:48.500Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-010 issuer=identity.example.test audience=commerce-api subject=customer-demo-3 scope=checkout:write
+2026-09-25T12:00:49.000Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-010 pod=checkout-r41-1 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:00:49.500Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-010 sku=demo-widget-2 requested=1 available=28 status=200
+2026-09-25T12:00:50.000Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-010 revision=checkout-r41 order_id=order-demo-10 transaction=committed duration_ms=9
+2026-09-25T12:00:50.500Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-010 revision=checkout-r41 status=201 duration_ms=61
+2026-09-25T12:00:51.000Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-011 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:00:51.500Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-011 issuer=identity.example.test audience=commerce-api subject=customer-demo-4 scope=checkout:write
+2026-09-25T12:00:52.000Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-011 pod=checkout-r41-2 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:00:52.500Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-011 sku=demo-widget-3 requested=1 available=28 status=200
+2026-09-25T12:00:53.000Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-011 revision=checkout-r41 order_id=order-demo-11 transaction=committed duration_ms=9
+2026-09-25T12:00:53.500Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-011 revision=checkout-r41 status=201 duration_ms=62
+2026-09-25T12:00:54.000Z INFO  service=smoke-runner env=staging event=canary_write_test_started target=checkout-r42-canary path=/v1/checkout requests=6 routing=explicit-canary-header synthetic=true
+2026-09-25T12:00:54.500Z INFO  service=gateway env=staging event=request_received request_id=req-demo-canary-000 method=POST path=/v1/checkout revision=checkout-r42 routing=canary-test
+2026-09-25T12:00:55.000Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-canary-000 issuer=identity.example.test audience=commerce-api subject=customer-demo-42 scope=checkout:write
+2026-09-25T12:00:55.500Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-canary-000 pod=checkout-r42-canary user=checkout_app_v42 wait_ms=0 pool_active=1
+2026-09-25T12:00:56.000Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-canary-000 caller=checkout-r42-canary auth=accepted sku=demo-widget-2 available=28 status=200 duration_ms=11
+2026-09-25T12:00:56.500Z DEBUG service=checkout env=staging event=transaction_started request_id=req-demo-canary-000 user=checkout_app_v42 isolation=read_committed
+2026-09-25T12:00:57.000Z ERROR service=postgres env=staging event=statement_failed request_id=req-demo-canary-000 user=checkout_app_v42 sqlstate=42501 relation=public.orders statement_type=INSERT message="permission denied for table orders"
+2026-09-25T12:00:57.500Z ERROR service=checkout env=staging event=order_persist_failed request_id=req-demo-canary-000 pod=checkout-r42-canary exception=InsufficientPrivilege sqlstate=42501 operation=create_order retryable=false
+2026-09-25T12:00:58.000Z INFO  service=checkout env=staging event=transaction_rolled_back request_id=req-demo-canary-000 order_created=false payment_attempted=false
+2026-09-25T12:00:58.500Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-canary-000 revision=checkout-r42 status=500 error_code=ORDER_PERSIST_FAILED duration_ms=34
+2026-09-25T12:00:59.000Z ERROR service=smoke-runner env=staging event=canary_write_test_failed request_id=req-demo-canary-000 expected_status=201 actual_status=500 attempt=1
+2026-09-25T12:00:59.500Z INFO  service=gateway env=staging event=request_received request_id=req-demo-canary-001 method=POST path=/v1/checkout revision=checkout-r42 routing=canary-test
+2026-09-25T12:01:00.000Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-canary-001 issuer=identity.example.test audience=commerce-api subject=customer-demo-42 scope=checkout:write
+2026-09-25T12:01:00.500Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-canary-001 pod=checkout-r42-canary user=checkout_app_v42 wait_ms=0 pool_active=1
+2026-09-25T12:01:01.000Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-canary-001 caller=checkout-r42-canary auth=accepted sku=demo-widget-2 available=28 status=200 duration_ms=11
+2026-09-25T12:01:01.500Z DEBUG service=checkout env=staging event=transaction_started request_id=req-demo-canary-001 user=checkout_app_v42 isolation=read_committed
+2026-09-25T12:01:02.000Z ERROR service=postgres env=staging event=statement_failed request_id=req-demo-canary-001 user=checkout_app_v42 sqlstate=42501 relation=public.orders statement_type=INSERT message="permission denied for table orders"
+2026-09-25T12:01:02.500Z ERROR service=checkout env=staging event=order_persist_failed request_id=req-demo-canary-001 pod=checkout-r42-canary exception=InsufficientPrivilege sqlstate=42501 operation=create_order retryable=false
+2026-09-25T12:01:03.000Z INFO  service=checkout env=staging event=transaction_rolled_back request_id=req-demo-canary-001 order_created=false payment_attempted=false
+2026-09-25T12:01:03.500Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-canary-001 revision=checkout-r42 status=500 error_code=ORDER_PERSIST_FAILED duration_ms=35
+2026-09-25T12:01:04.000Z ERROR service=smoke-runner env=staging event=canary_write_test_failed request_id=req-demo-canary-001 expected_status=201 actual_status=500 attempt=2
+2026-09-25T12:01:04.500Z INFO  service=gateway env=staging event=request_received request_id=req-demo-canary-002 method=POST path=/v1/checkout revision=checkout-r42 routing=canary-test
+2026-09-25T12:01:05.000Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-canary-002 issuer=identity.example.test audience=commerce-api subject=customer-demo-42 scope=checkout:write
+2026-09-25T12:01:05.500Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-canary-002 pod=checkout-r42-canary user=checkout_app_v42 wait_ms=0 pool_active=1
+2026-09-25T12:01:06.000Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-canary-002 caller=checkout-r42-canary auth=accepted sku=demo-widget-2 available=28 status=200 duration_ms=11
+2026-09-25T12:01:06.500Z DEBUG service=checkout env=staging event=transaction_started request_id=req-demo-canary-002 user=checkout_app_v42 isolation=read_committed
+2026-09-25T12:01:07.000Z ERROR service=postgres env=staging event=statement_failed request_id=req-demo-canary-002 user=checkout_app_v42 sqlstate=42501 relation=public.orders statement_type=INSERT message="permission denied for table orders"
+2026-09-25T12:01:07.500Z ERROR service=checkout env=staging event=order_persist_failed request_id=req-demo-canary-002 pod=checkout-r42-canary exception=InsufficientPrivilege sqlstate=42501 operation=create_order retryable=false
+2026-09-25T12:01:08.000Z INFO  service=checkout env=staging event=transaction_rolled_back request_id=req-demo-canary-002 order_created=false payment_attempted=false
+2026-09-25T12:01:08.500Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-canary-002 revision=checkout-r42 status=500 error_code=ORDER_PERSIST_FAILED duration_ms=36
+2026-09-25T12:01:09.000Z ERROR service=smoke-runner env=staging event=canary_write_test_failed request_id=req-demo-canary-002 expected_status=201 actual_status=500 attempt=3
+2026-09-25T12:01:09.500Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-012 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:01:10.000Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-012 issuer=identity.example.test audience=commerce-api subject=customer-demo-5 scope=checkout:write
+2026-09-25T12:01:10.500Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-012 pod=checkout-r41-0 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:01:11.000Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-012 sku=demo-widget-0 requested=1 available=28 status=200
+2026-09-25T12:01:11.500Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-012 revision=checkout-r41 order_id=order-demo-12 transaction=committed duration_ms=9
+2026-09-25T12:01:12.000Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-012 revision=checkout-r41 status=201 duration_ms=63
+2026-09-25T12:01:12.500Z INFO  service=gateway env=staging event=request_received request_id=req-demo-canary-003 method=POST path=/v1/checkout revision=checkout-r42 routing=canary-test
+2026-09-25T12:01:13.000Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-canary-003 issuer=identity.example.test audience=commerce-api subject=customer-demo-42 scope=checkout:write
+2026-09-25T12:01:13.500Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-canary-003 pod=checkout-r42-canary user=checkout_app_v42 wait_ms=0 pool_active=1
+2026-09-25T12:01:14.000Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-canary-003 caller=checkout-r42-canary auth=accepted sku=demo-widget-2 available=28 status=200 duration_ms=11
+2026-09-25T12:01:14.500Z DEBUG service=checkout env=staging event=transaction_started request_id=req-demo-canary-003 user=checkout_app_v42 isolation=read_committed
+2026-09-25T12:01:15.000Z ERROR service=postgres env=staging event=statement_failed request_id=req-demo-canary-003 user=checkout_app_v42 sqlstate=42501 relation=public.orders statement_type=INSERT message="permission denied for table orders"
+2026-09-25T12:01:15.500Z ERROR service=checkout env=staging event=order_persist_failed request_id=req-demo-canary-003 pod=checkout-r42-canary exception=InsufficientPrivilege sqlstate=42501 operation=create_order retryable=false
+2026-09-25T12:01:16.000Z INFO  service=checkout env=staging event=transaction_rolled_back request_id=req-demo-canary-003 order_created=false payment_attempted=false
+2026-09-25T12:01:16.500Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-canary-003 revision=checkout-r42 status=500 error_code=ORDER_PERSIST_FAILED duration_ms=37
+2026-09-25T12:01:17.000Z ERROR service=smoke-runner env=staging event=canary_write_test_failed request_id=req-demo-canary-003 expected_status=201 actual_status=500 attempt=4
+2026-09-25T12:01:17.500Z INFO  service=gateway env=staging event=request_received request_id=req-demo-canary-004 method=POST path=/v1/checkout revision=checkout-r42 routing=canary-test
+2026-09-25T12:01:18.000Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-canary-004 issuer=identity.example.test audience=commerce-api subject=customer-demo-42 scope=checkout:write
+2026-09-25T12:01:18.500Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-canary-004 pod=checkout-r42-canary user=checkout_app_v42 wait_ms=0 pool_active=1
+2026-09-25T12:01:19.000Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-canary-004 caller=checkout-r42-canary auth=accepted sku=demo-widget-2 available=28 status=200 duration_ms=11
+2026-09-25T12:01:19.500Z DEBUG service=checkout env=staging event=transaction_started request_id=req-demo-canary-004 user=checkout_app_v42 isolation=read_committed
+2026-09-25T12:01:20.000Z ERROR service=postgres env=staging event=statement_failed request_id=req-demo-canary-004 user=checkout_app_v42 sqlstate=42501 relation=public.orders statement_type=INSERT message="permission denied for table orders"
+2026-09-25T12:01:20.500Z ERROR service=checkout env=staging event=order_persist_failed request_id=req-demo-canary-004 pod=checkout-r42-canary exception=InsufficientPrivilege sqlstate=42501 operation=create_order retryable=false
+2026-09-25T12:01:21.000Z INFO  service=checkout env=staging event=transaction_rolled_back request_id=req-demo-canary-004 order_created=false payment_attempted=false
+2026-09-25T12:01:21.500Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-canary-004 revision=checkout-r42 status=500 error_code=ORDER_PERSIST_FAILED duration_ms=38
+2026-09-25T12:01:22.000Z ERROR service=smoke-runner env=staging event=canary_write_test_failed request_id=req-demo-canary-004 expected_status=201 actual_status=500 attempt=5
+2026-09-25T12:01:22.500Z INFO  service=gateway env=staging event=request_received request_id=req-demo-canary-005 method=POST path=/v1/checkout revision=checkout-r42 routing=canary-test
+2026-09-25T12:01:23.000Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-canary-005 issuer=identity.example.test audience=commerce-api subject=customer-demo-42 scope=checkout:write
+2026-09-25T12:01:23.500Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-canary-005 pod=checkout-r42-canary user=checkout_app_v42 wait_ms=0 pool_active=1
+2026-09-25T12:01:24.000Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-canary-005 caller=checkout-r42-canary auth=accepted sku=demo-widget-2 available=28 status=200 duration_ms=11
+2026-09-25T12:01:24.500Z DEBUG service=checkout env=staging event=transaction_started request_id=req-demo-canary-005 user=checkout_app_v42 isolation=read_committed
+2026-09-25T12:01:25.000Z ERROR service=postgres env=staging event=statement_failed request_id=req-demo-canary-005 user=checkout_app_v42 sqlstate=42501 relation=public.orders statement_type=INSERT message="permission denied for table orders"
+2026-09-25T12:01:25.500Z ERROR service=checkout env=staging event=order_persist_failed request_id=req-demo-canary-005 pod=checkout-r42-canary exception=InsufficientPrivilege sqlstate=42501 operation=create_order retryable=false
+2026-09-25T12:01:26.000Z INFO  service=checkout env=staging event=transaction_rolled_back request_id=req-demo-canary-005 order_created=false payment_attempted=false
+2026-09-25T12:01:26.500Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-canary-005 revision=checkout-r42 status=500 error_code=ORDER_PERSIST_FAILED duration_ms=39
+2026-09-25T12:01:27.000Z ERROR service=smoke-runner env=staging event=canary_write_test_failed request_id=req-demo-canary-005 expected_status=201 actual_status=500 attempt=6
+2026-09-25T12:01:27.500Z INFO  service=schema-job env=staging event=role_grants_inspected role=checkout_app_v42 database_connect=true schema_usage=true orders_select=true orders_insert=false orders_update=false
+2026-09-25T12:01:28.000Z WARN  service=schema-job env=staging event=grant_mismatch role=checkout_app_v42 baseline_role=checkout_app_v41 missing=INSERT,UPDATE relation=public.orders
+2026-09-25T12:01:28.500Z INFO  service=checkout env=staging event=readiness_probe pod=checkout-r42-canary status=200 checks=process,db_select_1,redis_ping write_privileges_checked=false
+2026-09-25T12:01:29.000Z ERROR service=deploy-controller env=staging event=canary_gate_failed revision=checkout-r42 write_test_failures=6 write_test_total=6 failure_scope=candidate_only
+2026-09-25T12:01:29.500Z INFO  service=deploy-controller env=staging event=diagnosis_recorded revision=checkout-r42 cause=db_table_permissions auth_connections=healthy db_connections=healthy message="Candidate database role lacks orders write privileges; successful readiness did not cover writes."
+2026-09-25T12:01:30.000Z WARN  service=deploy-controller env=staging event=rollback_started deployment=deploy-demo-042 from_revision=checkout-r42 to_revision=checkout-r41 reason=canary_write_gate_failed
+2026-09-25T12:01:30.500Z INFO  service=gateway env=staging event=canary_route_updated route=/v1/checkout old_revision=checkout-r41 old_weight=100 candidate_revision=checkout-r42 candidate_weight=0
+2026-09-25T12:01:31.000Z INFO  service=checkout env=staging event=draining_started pod=checkout-r42-canary active_requests=0 deadline_seconds=30
+2026-09-25T12:01:31.500Z INFO  service=checkout env=staging event=db_pool_closed pod=checkout-r42-canary connections_closed=2
+2026-09-25T12:01:32.000Z INFO  service=checkout env=staging event=shutdown_completed pod=checkout-r42-canary exit_code=0 reason=deployment_rollback
+2026-09-25T12:01:32.500Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-013 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:01:33.000Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-013 issuer=identity.example.test audience=commerce-api subject=customer-demo-6 scope=checkout:write
+2026-09-25T12:01:33.500Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-013 pod=checkout-r41-1 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:01:34.000Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-013 sku=demo-widget-1 requested=1 available=28 status=200
+2026-09-25T12:01:34.500Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-013 revision=checkout-r41 order_id=order-demo-13 transaction=committed duration_ms=9
+2026-09-25T12:01:35.000Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-013 revision=checkout-r41 status=201 duration_ms=64
+2026-09-25T12:01:35.500Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-014 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:01:36.000Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-014 issuer=identity.example.test audience=commerce-api subject=customer-demo-0 scope=checkout:write
+2026-09-25T12:01:36.500Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-014 pod=checkout-r41-2 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:01:37.000Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-014 sku=demo-widget-2 requested=1 available=28 status=200
+2026-09-25T12:01:37.500Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-014 revision=checkout-r41 order_id=order-demo-14 transaction=committed duration_ms=9
+2026-09-25T12:01:38.000Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-014 revision=checkout-r41 status=201 duration_ms=65
+2026-09-25T12:01:38.500Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-015 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:01:39.000Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-015 issuer=identity.example.test audience=commerce-api subject=customer-demo-1 scope=checkout:write
+2026-09-25T12:01:39.500Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-015 pod=checkout-r41-0 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:01:40.000Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-015 sku=demo-widget-3 requested=1 available=28 status=200
+2026-09-25T12:01:40.500Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-015 revision=checkout-r41 order_id=order-demo-15 transaction=committed duration_ms=9
+2026-09-25T12:01:41.000Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-015 revision=checkout-r41 status=201 duration_ms=66
+2026-09-25T12:01:41.500Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-016 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:01:42.000Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-016 issuer=identity.example.test audience=commerce-api subject=customer-demo-2 scope=checkout:write
+2026-09-25T12:01:42.500Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-016 pod=checkout-r41-1 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:01:43.000Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-016 sku=demo-widget-0 requested=1 available=28 status=200
+2026-09-25T12:01:43.500Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-016 revision=checkout-r41 order_id=order-demo-16 transaction=committed duration_ms=9
+2026-09-25T12:01:44.000Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-016 revision=checkout-r41 status=201 duration_ms=67
+2026-09-25T12:01:44.500Z INFO  service=identity env=staging event=jwks_cache_hit client=gateway cache_age_seconds=180 expires_in_seconds=3420
+2026-09-25T12:01:45.000Z INFO  service=inventory env=staging event=consumer_checkpoint partition=1 offset=181472 lag=0
+2026-09-25T12:01:45.500Z INFO  service=payments env=staging event=connection_pool_health database=payments active=1 idle=9 tls=true auth=healthy
+2026-09-25T12:01:46.000Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-health-16 method=GET path=/health status=200 duration_ms=1
+2026-09-25T12:01:46.500Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-017 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:01:47.000Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-017 issuer=identity.example.test audience=commerce-api subject=customer-demo-3 scope=checkout:write
+2026-09-25T12:01:47.500Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-017 pod=checkout-r41-2 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:01:48.000Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-017 sku=demo-widget-1 requested=1 available=28 status=200
+2026-09-25T12:01:48.500Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-017 revision=checkout-r41 order_id=order-demo-17 transaction=committed duration_ms=9
+2026-09-25T12:01:49.000Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-017 revision=checkout-r41 status=201 duration_ms=68
+2026-09-25T12:01:49.500Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-018 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:01:50.000Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-018 issuer=identity.example.test audience=commerce-api subject=customer-demo-4 scope=checkout:write
+2026-09-25T12:01:50.500Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-018 pod=checkout-r41-0 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:01:51.000Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-018 sku=demo-widget-2 requested=1 available=28 status=200
+2026-09-25T12:01:51.500Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-018 revision=checkout-r41 order_id=order-demo-18 transaction=committed duration_ms=9
+2026-09-25T12:01:52.000Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-018 revision=checkout-r41 status=201 duration_ms=69
+2026-09-25T12:01:52.500Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-019 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:01:53.000Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-019 issuer=identity.example.test audience=commerce-api subject=customer-demo-5 scope=checkout:write
+2026-09-25T12:01:53.500Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-019 pod=checkout-r41-1 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:01:54.000Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-019 sku=demo-widget-3 requested=1 available=28 status=200
+2026-09-25T12:01:54.500Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-019 revision=checkout-r41 order_id=order-demo-19 transaction=committed duration_ms=9
+2026-09-25T12:01:55.000Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-019 revision=checkout-r41 status=201 duration_ms=51
+2026-09-25T12:01:55.500Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-020 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:01:56.000Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-020 issuer=identity.example.test audience=commerce-api subject=customer-demo-6 scope=checkout:write
+2026-09-25T12:01:56.500Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-020 pod=checkout-r41-2 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:01:57.000Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-020 sku=demo-widget-0 requested=1 available=28 status=200
+2026-09-25T12:01:57.500Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-020 revision=checkout-r41 order_id=order-demo-20 transaction=committed duration_ms=9
+2026-09-25T12:01:58.000Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-020 revision=checkout-r41 status=201 duration_ms=52
+2026-09-25T12:01:58.500Z INFO  service=identity env=staging event=jwks_cache_hit client=gateway cache_age_seconds=180 expires_in_seconds=3420
+2026-09-25T12:01:59.000Z INFO  service=inventory env=staging event=consumer_checkpoint partition=1 offset=181540 lag=0
+2026-09-25T12:01:59.500Z INFO  service=payments env=staging event=connection_pool_health database=payments active=1 idle=9 tls=true auth=healthy
+2026-09-25T12:02:00.000Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-health-20 method=GET path=/health status=200 duration_ms=1
+2026-09-25T12:02:00.500Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-021 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:02:01.000Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-021 issuer=identity.example.test audience=commerce-api subject=customer-demo-0 scope=checkout:write
+2026-09-25T12:02:01.500Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-021 pod=checkout-r41-0 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:02:02.000Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-021 sku=demo-widget-1 requested=1 available=28 status=200
+2026-09-25T12:02:02.500Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-021 revision=checkout-r41 order_id=order-demo-21 transaction=committed duration_ms=9
+2026-09-25T12:02:03.000Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-021 revision=checkout-r41 status=201 duration_ms=53
+2026-09-25T12:02:03.500Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-022 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:02:04.000Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-022 issuer=identity.example.test audience=commerce-api subject=customer-demo-1 scope=checkout:write
+2026-09-25T12:02:04.500Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-022 pod=checkout-r41-1 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:02:05.000Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-022 sku=demo-widget-2 requested=1 available=28 status=200
+2026-09-25T12:02:05.500Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-022 revision=checkout-r41 order_id=order-demo-22 transaction=committed duration_ms=9
+2026-09-25T12:02:06.000Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-022 revision=checkout-r41 status=201 duration_ms=54
+2026-09-25T12:02:06.500Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-023 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:02:07.000Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-023 issuer=identity.example.test audience=commerce-api subject=customer-demo-2 scope=checkout:write
+2026-09-25T12:02:07.500Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-023 pod=checkout-r41-2 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:02:08.000Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-023 sku=demo-widget-3 requested=1 available=28 status=200
+2026-09-25T12:02:08.500Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-023 revision=checkout-r41 order_id=order-demo-23 transaction=committed duration_ms=9
+2026-09-25T12:02:09.000Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-023 revision=checkout-r41 status=201 duration_ms=55
+2026-09-25T12:02:09.500Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-024 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:02:10.000Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-024 issuer=identity.example.test audience=commerce-api subject=customer-demo-3 scope=checkout:write
+2026-09-25T12:02:10.500Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-024 pod=checkout-r41-0 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:02:11.000Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-024 sku=demo-widget-0 requested=1 available=28 status=200
+2026-09-25T12:02:11.500Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-024 revision=checkout-r41 order_id=order-demo-24 transaction=committed duration_ms=9
+2026-09-25T12:02:12.000Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-024 revision=checkout-r41 status=201 duration_ms=56
+2026-09-25T12:02:12.500Z INFO  service=identity env=staging event=jwks_cache_hit client=gateway cache_age_seconds=180 expires_in_seconds=3420
+2026-09-25T12:02:13.000Z INFO  service=inventory env=staging event=consumer_checkpoint partition=1 offset=181608 lag=0
+2026-09-25T12:02:13.500Z INFO  service=payments env=staging event=connection_pool_health database=payments active=1 idle=9 tls=true auth=healthy
+2026-09-25T12:02:14.000Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-health-24 method=GET path=/health status=200 duration_ms=1
+2026-09-25T12:02:14.500Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-025 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:02:15.000Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-025 issuer=identity.example.test audience=commerce-api subject=customer-demo-4 scope=checkout:write
+2026-09-25T12:02:15.500Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-025 pod=checkout-r41-1 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:02:16.000Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-025 sku=demo-widget-1 requested=1 available=28 status=200
+2026-09-25T12:02:16.500Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-025 revision=checkout-r41 order_id=order-demo-25 transaction=committed duration_ms=9
+2026-09-25T12:02:17.000Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-025 revision=checkout-r41 status=201 duration_ms=57
+2026-09-25T12:02:17.500Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-026 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:02:18.000Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-026 issuer=identity.example.test audience=commerce-api subject=customer-demo-5 scope=checkout:write
+2026-09-25T12:02:18.500Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-026 pod=checkout-r41-2 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:02:19.000Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-026 sku=demo-widget-2 requested=1 available=28 status=200
+2026-09-25T12:02:19.500Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-026 revision=checkout-r41 order_id=order-demo-26 transaction=committed duration_ms=9
+2026-09-25T12:02:20.000Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-026 revision=checkout-r41 status=201 duration_ms=58
+2026-09-25T12:02:20.500Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-027 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:02:21.000Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-027 issuer=identity.example.test audience=commerce-api subject=customer-demo-6 scope=checkout:write
+2026-09-25T12:02:21.500Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-027 pod=checkout-r41-0 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:02:22.000Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-027 sku=demo-widget-3 requested=1 available=28 status=200
+2026-09-25T12:02:22.500Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-027 revision=checkout-r41 order_id=order-demo-27 transaction=committed duration_ms=9
+2026-09-25T12:02:23.000Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-027 revision=checkout-r41 status=201 duration_ms=59
+2026-09-25T12:02:23.500Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-028 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:02:24.000Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-028 issuer=identity.example.test audience=commerce-api subject=customer-demo-0 scope=checkout:write
+2026-09-25T12:02:24.500Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-028 pod=checkout-r41-1 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:02:25.000Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-028 sku=demo-widget-0 requested=1 available=28 status=200
+2026-09-25T12:02:25.500Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-028 revision=checkout-r41 order_id=order-demo-28 transaction=committed duration_ms=9
+2026-09-25T12:02:26.000Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-028 revision=checkout-r41 status=201 duration_ms=60
+2026-09-25T12:02:26.500Z INFO  service=identity env=staging event=jwks_cache_hit client=gateway cache_age_seconds=180 expires_in_seconds=3420
+2026-09-25T12:02:27.000Z INFO  service=inventory env=staging event=consumer_checkpoint partition=1 offset=181676 lag=0
+2026-09-25T12:02:27.500Z INFO  service=payments env=staging event=connection_pool_health database=payments active=1 idle=9 tls=true auth=healthy
+2026-09-25T12:02:28.000Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-health-28 method=GET path=/health status=200 duration_ms=1
+2026-09-25T12:02:28.500Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-029 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:02:29.000Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-029 issuer=identity.example.test audience=commerce-api subject=customer-demo-1 scope=checkout:write
+2026-09-25T12:02:29.500Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-029 pod=checkout-r41-2 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:02:30.000Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-029 sku=demo-widget-1 requested=1 available=28 status=200
+2026-09-25T12:02:30.500Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-029 revision=checkout-r41 order_id=order-demo-29 transaction=committed duration_ms=9
+2026-09-25T12:02:31.000Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-029 revision=checkout-r41 status=201 duration_ms=61
+2026-09-25T12:02:31.500Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-030 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:02:32.000Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-030 issuer=identity.example.test audience=commerce-api subject=customer-demo-2 scope=checkout:write
+2026-09-25T12:02:32.500Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-030 pod=checkout-r41-0 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:02:33.000Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-030 sku=demo-widget-2 requested=1 available=28 status=200
+2026-09-25T12:02:33.500Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-030 revision=checkout-r41 order_id=order-demo-30 transaction=committed duration_ms=9
+2026-09-25T12:02:34.000Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-030 revision=checkout-r41 status=201 duration_ms=62
+2026-09-25T12:02:34.500Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-031 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:02:35.000Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-031 issuer=identity.example.test audience=commerce-api subject=customer-demo-3 scope=checkout:write
+2026-09-25T12:02:35.500Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-031 pod=checkout-r41-1 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:02:36.000Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-031 sku=demo-widget-3 requested=1 available=28 status=200
+2026-09-25T12:02:36.500Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-031 revision=checkout-r41 order_id=order-demo-31 transaction=committed duration_ms=9
+2026-09-25T12:02:37.000Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-031 revision=checkout-r41 status=201 duration_ms=63
+2026-09-25T12:02:37.500Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-032 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:02:38.000Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-032 issuer=identity.example.test audience=commerce-api subject=customer-demo-4 scope=checkout:write
+2026-09-25T12:02:38.500Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-032 pod=checkout-r41-2 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:02:39.000Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-032 sku=demo-widget-0 requested=1 available=28 status=200
+2026-09-25T12:02:39.500Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-032 revision=checkout-r41 order_id=order-demo-32 transaction=committed duration_ms=9
+2026-09-25T12:02:40.000Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-032 revision=checkout-r41 status=201 duration_ms=64
+2026-09-25T12:02:40.500Z INFO  service=identity env=staging event=jwks_cache_hit client=gateway cache_age_seconds=180 expires_in_seconds=3420
+2026-09-25T12:02:41.000Z INFO  service=inventory env=staging event=consumer_checkpoint partition=1 offset=181744 lag=0
+2026-09-25T12:02:41.500Z INFO  service=payments env=staging event=connection_pool_health database=payments active=1 idle=9 tls=true auth=healthy
+2026-09-25T12:02:42.000Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-health-32 method=GET path=/health status=200 duration_ms=1
+2026-09-25T12:02:42.500Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-033 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:02:43.000Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-033 issuer=identity.example.test audience=commerce-api subject=customer-demo-5 scope=checkout:write
+2026-09-25T12:02:43.500Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-033 pod=checkout-r41-0 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:02:44.000Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-033 sku=demo-widget-1 requested=1 available=28 status=200
+2026-09-25T12:02:44.500Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-033 revision=checkout-r41 order_id=order-demo-33 transaction=committed duration_ms=9
+2026-09-25T12:02:45.000Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-033 revision=checkout-r41 status=201 duration_ms=65
+2026-09-25T12:02:45.500Z INFO  service=gateway env=staging event=request_received request_id=req-demo-stable-034 method=POST path=/v1/checkout revision=checkout-r41 synthetic=true
+2026-09-25T12:02:46.000Z INFO  service=gateway env=staging event=jwt_verified request_id=req-demo-stable-034 issuer=identity.example.test audience=commerce-api subject=customer-demo-6 scope=checkout:write
+2026-09-25T12:02:46.500Z DEBUG service=checkout env=staging event=db_connection_acquired request_id=req-demo-stable-034 pod=checkout-r41-1 user=checkout_app_v41 wait_ms=0 pool_active=3
+2026-09-25T12:02:47.000Z INFO  service=inventory env=staging event=availability_checked request_id=req-demo-stable-034 sku=demo-widget-2 requested=1 available=28 status=200
+2026-09-25T12:02:47.500Z INFO  service=checkout env=staging event=order_created request_id=req-demo-stable-034 revision=checkout-r41 order_id=order-demo-34 transaction=committed duration_ms=9
+2026-09-25T12:02:48.000Z INFO  service=gateway env=staging event=request_completed request_id=req-demo-stable-034 revision=checkout-r41 status=201 duration_ms=66
+2026-09-25T12:02:48.500Z INFO  service=smoke-runner env=staging event=rollback_verification_passed revision=checkout-r41 create_order_status=201 inventory_status=200 payments_health_status=200
+2026-09-25T12:02:49.000Z INFO  service=deploy-controller env=staging event=replica_status revision=checkout-r41 desired=3 ready=3 unavailable=0 candidate_replicas=0
+2026-09-25T12:02:49.500Z INFO  service=deploy-controller env=staging event=rollback_completed deployment=deploy-demo-042 active_revision=checkout-r41 attempted_revision=checkout-r42 previous_release_healthy=true
+2026-09-25T12:02:50.000Z INFO  service=deploy-controller env=staging event=deployment_finished deployment=deploy-demo-042 outcome=rolled_back rollout_succeeded=false rollback_succeeded=true manual_followup=repair_candidate_role_grants

@@ -1,0 +1,26 @@
+[09:00] System: This is a mock support conversation; no real customer data.
+[09:01] Customer: I think I was charged twice for the same monthly subscription.
+[09:02] Support: What happened when you renewed, and where are you seeing the two entries?
+[09:03] Customer: The checkout page froze after I clicked pay. I retried it and then saw two matching amounts in my banking app.
+[09:04] Customer: I also cannot log in on my laptop now. It keeps sending me back to the sign-in page when I try to open billing.
+[09:05] Support: Understood. We can help with access so you can check the subscription, then return to the payment concern.
+[09:06] Customer: I requested a password reset, but the email took a while. I clicked the older reset link when it finally arrived.
+[09:07] Support: Please use only the newest reset link. Do not paste your password, reset link, or verification code into this chat.
+[09:08] Customer: The newest link worked, but after entering the verification code I still landed back at sign-in on the laptop.
+[09:09] Support: Are you able to sign in from a private browser window? Your usual window may have an old session.
+[09:10] Customer: The private window works. I can see the subscription now. The usual window still loops, though.
+[09:11] Support: You can clear this site's session data later. We have working access in the private window for this investigation.
+[09:12] Customer: Thanks. The login problem was getting in the way, but the duplicate payment is why I contacted you.
+[09:13] Customer: The subscription page shows one renewal and one receipt. My banking app still shows two entries for the same amount.
+[09:14] Support: Are both bank entries marked completed, or is one still pending? Please describe the labels without sharing account details.
+[09:15] Customer: One says completed and the other says pending. The amounts match.
+[09:16] Customer: Both reduce what looks like my available balance, so I thought that meant both payments had gone through.
+[09:17] Support: A pending entry may be a card authorization. I have not checked the payment records yet, so I cannot confirm that explanation here.
+[09:18] Customer: Could retrying checkout have caused that? I only received one receipt, but the second bank entry appeared after the retry.
+[09:19] Support: That sequence is useful context, but we need to verify the transaction records before saying what caused the extra entry.
+[09:20] Customer: I do not want to cancel. I need the subscription for work; I just do not want to pay twice.
+[09:21] Support: Would you like us to verify the payment status before discussing a refund?
+[09:22] Customer: Yes, please verify the payment status first. I want to keep the subscription.
+[09:23] Customer: If two payments really settled, we can discuss a refund then. I am not asking you to issue one before checking.
+[09:24] Support: Understood. No refund or cancellation has been requested or processed. Payment verification is the next step.
+[09:25] Customer: I will deal with the normal browser login later. Please keep this case focused on the duplicate-payment concern.

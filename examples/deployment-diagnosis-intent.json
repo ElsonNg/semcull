@@ -1,0 +1,9 @@
+{
+  "question": "What failure do the examined logs attribute to checkout canary requests?",
+  "expectations": {
+    "db_permissions": "The database connection succeeds, but the application role lacks table write permissions.",
+    "db_connectivity": "The application cannot establish or authenticate a database connection.",
+    "service_auth": "Service requests fail because workload or customer authentication is rejected.",
+    "downstream_failure": "An inventory or payments dependency fails the requests."
+  }
+}

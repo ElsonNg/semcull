@@ -1,0 +1,8 @@
+{
+  "question": "What deployment outcome does the examined output report?",
+  "expectations": {
+    "complete": "The deployment completed successfully.",
+    "rolled_back": "The deployment failed and rollback completed.",
+    "running": "The deployment is still in progress."
+  }
+}
