@@ -1,12 +1,10 @@
 # Semcull (Semantic Cull)
 
-**Semcull optimizes for token-efficient workflows by routing lengthy, noisy tool output through Jev instead of putting the full output into a higher-cost reasoning model’s context.**
+**Inspect noisy tool output without filling your agent's context.**
 
-Given the reasoning agent’s question and expected states, Jev classifies selected portions and Semcull returns a compact observation with copied evidence. Subsequent follow ups reuse the same output, allowing for efficient, progressive disclosure.
+Semcull uses Jev to return compact, evidence-backed observations and reveals more only when needed.
 
-For long output, Semcull checks the tail first, then earlier windows as requested. The reasoning agent stays in control and decides what to investigate next.
-
-This progressive workflow nature makes it extremely suited for debugging, troubleshooting and classification use cases. [See examples below](#6-examples).
+[See examples](#6-examples).
 
 ## Contents
 
